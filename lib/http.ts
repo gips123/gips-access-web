@@ -1,8 +1,15 @@
 import axios from "axios";
 
 // Base config untuk panggil backend Golang
+// FE selalu memanggil path seperti "/auth/login" atau "/storage/...".
+// Jadi baseURL harus mencakup "/api/v1". Kita normalisasi agar aman di semua env.
+const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const normalizedBaseURL = rawBaseURL.endsWith("/api/v1")
+  ? rawBaseURL
+  : `${rawBaseURL.replace(/\/+$/, "")}/api/v1`;
+
 const http = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1",
+  baseURL: normalizedBaseURL,
   headers: {
     "Content-Type": "application/json",
   },

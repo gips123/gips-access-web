@@ -79,4 +79,76 @@ export const storageSdk = {
     });
     return res.data;
   },
+
+  /**
+   * PATCH /api/v1/storage/items/public/{id}
+   * Toggle visibilitas folder/file milik user.
+   */
+  setItemPublic: async (token: string, id: string, isPublic: boolean) => {
+    const res = await http.patch<ApiResponse<StorageItem>>(
+      `/storage/items/public/${id}`,
+      { is_public: isPublic },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return res.data;
+  },
+
+  /**
+   * POST /api/v1/storage/items/:id/share
+   * Menghasilkan share token URL (bisa dipakai untuk QR & download tanpa akses MinIO langsung).
+   */
+  createShare: async (token: string, id: string) => {
+    const res = await http.post<
+      ApiResponse<{ url: string; expires_at: string }>
+    >(`/storage/items/${id}/share`, {}, { headers: { Authorization: `Bearer ${token}` } });
+    return res.data;
+  },
+
+  /**
+   * POST /api/v1/storage/items/publicshare/{id}
+   * Share token untuk item yang sudah public (tanpa auth).
+   */
+  createPublicShare: async (id: string) => {
+    const res = await http.post<ApiResponse<{ url: string; expires_at: string }>>(
+      `/storage/items/publicshare/${id}`,
+      {}
+    );
+    return res.data;
+  },
+
+  /**
+   * GET /api/v1/storage/folders/path/{folder_id}
+   * Mengembalikan rantai folder dari root -> folder_id untuk breadcrumb.
+   */
+  getPrivateFolderPath: async (token: string, folderId: string) => {
+    const res = await http.get<ApiResponse<StorageItem[]>>(
+      `/storage/folders/path/${folderId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return res.data;
+  },
+
+  /**
+   * GET /api/v1/storage/public/quick/{kind}
+   */
+  getPublicQuickList: async (kind: string, parentId?: string) => {
+    const params = parentId ? { parent_id: parentId } : {};
+    const res = await http.get<ApiResponse<StorageListResponse>>(
+      `/storage/public/quick/${kind}`,
+      { params }
+    );
+    return res.data;
+  },
+
+  /**
+   * GET /api/v1/storage/private/quick/{kind}
+   */
+  getPrivateQuickList: async (token: string, kind: string, parentId?: string) => {
+    const params = parentId ? { parent_id: parentId } : {};
+    const res = await http.get<ApiResponse<StorageListResponse>>(
+      `/storage/private/quick/${kind}`,
+      { headers: { Authorization: `Bearer ${token}` }, params }
+    );
+    return res.data;
+  },
 };

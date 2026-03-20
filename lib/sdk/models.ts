@@ -35,6 +35,7 @@ export interface StorageItem {
   parent_id?: string; // kosong jika di root
   updated_at: string;
   created_at: string;
+  fileUrl?: string;
 }
 
 export interface StorageListResponse {

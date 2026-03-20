@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 import { loginAction } from "./core/actions";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +55,7 @@ export default function LoginPage() {
               <ShieldCheck className="w-8 h-8 text-white drop-shadow-sm" strokeWidth={2} />
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-400">
-              Ghifary Web Access
+              Access Dashboard
             </h1>
             <p className="text-sm text-neutral-400">
               Sign in to continue to the main dashboard
@@ -142,5 +142,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

@@ -42,7 +42,7 @@ export function HomeFeatures({ isLoggedIn }: HomeFeaturesProps) {
     },
     {
       title: "Settings",
-      description: "Advanced configuration for Ghifary Web.",
+      description: "Advanced configuration for Access Dashboard.",
       href: "/(protected)/settings",
       onClick: undefined,
       icon: Settings,

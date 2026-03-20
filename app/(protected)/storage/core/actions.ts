@@ -33,6 +33,25 @@ export async function getPublicStorageListAction(parentId?: string) {
   }
 }
 
+export async function getPrivateQuickListAction(kind: string, parentId?: string) {
+  try {
+    const token = await getToken();
+    const res = await storageSdk.getPrivateQuickList(token, kind, parentId);
+    return res;
+  } catch (error: any) {
+    return { success: false, error: error.response?.data?.error || error.message };
+  }
+}
+
+export async function getPublicQuickListAction(kind: string, parentId?: string) {
+  try {
+    const res = await storageSdk.getPublicQuickList(kind, parentId);
+    return res;
+  } catch (error: any) {
+    return { success: false, error: error.response?.data?.error || error.message };
+  }
+}
+
 export async function createFolderAction(payload: CreateFolderRequest) {
   try {
     const token = await getToken();
@@ -83,6 +102,50 @@ export async function deleteItemAction(id: string) {
     // Perbarui otomatis data halaman setelah terhapus
     revalidatePath('/storage');
     return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.response?.data?.error || error.message };
+  }
+}
+
+export async function createShareAction(id: string) {
+  try {
+    const token = await getToken();
+    const res = await storageSdk.createShare(token, id);
+    return res;
+  } catch (error: any) {
+    return { success: false, error: error.response?.data?.error || error.message };
+  }
+}
+
+export async function createPublicShareAction(id: string) {
+  try {
+    const res = await storageSdk.createPublicShare(id);
+    return res;
+  } catch (error: any) {
+    return { success: false, error: error.response?.data?.error || error.message };
+  }
+}
+
+export async function getFolderPathAction(folderId?: string) {
+  try {
+    if (!folderId) return { success: true, data: [] as any[] };
+    const token = await getToken();
+    const res = await storageSdk.getPrivateFolderPath(token, folderId);
+    return res;
+  } catch (error: any) {
+    return { success: false, error: error.response?.data?.error || error.message };
+  }
+}
+
+export async function setItemPublicAction(id: string, isPublic: boolean) {
+  try {
+    const token = await getToken();
+    const res = await storageSdk.setItemPublic(token, id, isPublic);
+    if (res?.success) {
+      revalidatePath('/storage');
+      revalidatePath('/public-feature/public-storage');
+    }
+    return res;
   } catch (error: any) {
     return { success: false, error: error.response?.data?.error || error.message };
   }

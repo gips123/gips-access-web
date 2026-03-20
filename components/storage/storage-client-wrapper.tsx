@@ -3,17 +3,23 @@
 import { useState } from "react";
 import { StorageHeader } from "./storage-header";
 import { StorageList } from "./storage-list";
+import { StorageCardGrid } from "./storage-card-grid";
 import { StorageItem } from "@/lib/sdk/models";
-import { createFolderAction, renameItemAction, deleteItemAction, uploadFileAction } from "@/app/(protected)/storage/core/actions";
-import { X, FolderPlus, Upload, FileText, Check, AlertTriangle } from "lucide-react";
+import { createFolderAction, renameItemAction, deleteItemAction, uploadFileAction, setItemPublicAction } from "@/app/(protected)/storage/core/actions";
+import { X, FolderPlus, Upload, FileText, Check, AlertTriangle, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { StorageVisibilityModal } from "./storage-visibility-modal";
 
 interface StorageClientWrapperProps {
   initialFiles: StorageItem[];
   parentId?: string;
+  folderPath?: StorageItem[];
+  viewMode?: "table" | "cards";
 }
 
-export function StorageClientWrapper({ initialFiles, parentId }: StorageClientWrapperProps) {
-  const [files, setFiles] = useState<StorageItem[]>(initialFiles);
+export function StorageClientWrapper({ initialFiles, parentId, folderPath = [], viewMode = "table" }: StorageClientWrapperProps) {
+  const router = useRouter();
+  const [isVisibilityModalOpen, setIsVisibilityModalOpen] = useState(false);
   
   // Modal states
   const [isFolderModalOpen, setFolderModalOpen] = useState(false);
@@ -128,15 +134,48 @@ export function StorageClientWrapper({ initialFiles, parentId }: StorageClientWr
             <div className="space-y-1">
                 <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
                   Private Storage
-                  {parentId && (
-                    <a href="/storage" className="text-sm font-normal text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1 rounded-full transition-colors inline-block mt-1">
-                       / Go to Root
-                    </a>
-                  )}
                 </h1>
+                <div className="flex flex-wrap items-center gap-2 text-sm mt-2">
+                  <button
+                    type="button"
+                    onClick={() => router.push("/storage")}
+                    className="text-neutral-400 hover:text-white transition-colors"
+                  >
+                    Root
+                  </button>
+                  {folderPath.map((f, idx) => {
+                    const isLast = idx === folderPath.length - 1;
+                    return (
+                      <span key={f.id} className="flex items-center gap-2">
+                        <span className="text-neutral-600">/</span>
+                        {isLast ? (
+                          <span className="text-neutral-200">{f.name}</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => router.push(`/storage?folder=${f.id}`)}
+                            className="text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            {f.name}
+                          </button>
+                        )}
+                      </span>
+                    );
+                  })}
+                </div>
             </div>
         </div>
         <div className="flex items-center gap-2">
+            {parentId && (
+              <button
+                type="button"
+                onClick={() => setIsVisibilityModalOpen(true)}
+                className="flex items-center justify-center h-10 w-10 text-neutral-300 bg-white/[0.05] border border-white/10 rounded-lg hover:bg-white/10 hover:text-white transition-all"
+                aria-label="Visibility settings"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            )}
             <button onClick={() => setFolderModalOpen(true)} className="flex items-center justify-center h-10 px-4 text-sm font-medium text-black bg-white rounded-lg hover:bg-neutral-200 transition-all shadow-lg">
                 <FolderPlus className="w-4 h-4 mr-2" /> New Folder
             </button>
@@ -146,14 +185,26 @@ export function StorageClientWrapper({ initialFiles, parentId }: StorageClientWr
         </div>
       </div>
 
-      <StorageList 
-        initialFiles={initialFiles} 
-        onRenameRequest={(item) => {
-          setRenameItem(item);
-          setRenameName(item.name);
-        }}
-        onDeleteRequest={(item) => setDeleteItem(item)}
-      />
+      {viewMode === "cards" ? (
+        <StorageCardGrid
+          initialFiles={initialFiles}
+          readOnly={false}
+          onRenameRequest={(item) => {
+            setRenameItem(item);
+            setRenameName(item.name);
+          }}
+          onDeleteRequest={(item) => setDeleteItem(item)}
+        />
+      ) : (
+        <StorageList 
+          initialFiles={initialFiles} 
+          onRenameRequest={(item) => {
+            setRenameItem(item);
+            setRenameName(item.name);
+          }}
+          onDeleteRequest={(item) => setDeleteItem(item)}
+        />
+      )}
 
       {/* MODAL: Create Folder */}
       {isFolderModalOpen && (
@@ -258,6 +309,20 @@ export function StorageClientWrapper({ initialFiles, parentId }: StorageClientWr
           </div>
         </div>
       )}
+
+      <StorageVisibilityModal
+        isOpen={isVisibilityModalOpen}
+        onClose={() => setIsVisibilityModalOpen(false)}
+        items={initialFiles}
+        onSave={async (changes) => {
+          for (const ch of changes) {
+            const res: any = await setItemPublicAction(ch.id, ch.isPublic);
+            if (!res?.success) {
+              throw new Error(res?.error || "Gagal menyimpan visibilitas");
+            }
+          }
+        }}
+      />
 
     </>
   );

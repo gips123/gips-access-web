@@ -1,17 +1,25 @@
 import { StorageHeader } from "@/components/storage/storage-header";
 import { StorageList } from "@/components/storage/storage-list";
+import { StorageCardGrid } from "@/components/storage/storage-card-grid";
+import { getPublicQuickListAction, getPublicStorageListAction } from "@/app/(protected)/storage/core/actions";
+import { StorageItem } from "@/lib/sdk/models";
+import { Image as ImageIcon, Video, FileText } from "lucide-react";
 
-// Simulate fetching public data
-async function getPublicStorageData() {
-  return [
-    { id: "1", name: "Public Documents", type: "folder", size: "-", date: "2026-03-18", iconType: "folder" },
-    { id: "2", name: "Public_Assets", type: "folder", size: "-", date: "2026-03-19", iconType: "folder" },
-    { id: "3", name: "Public_Brochure.pdf", type: "file", size: "1.2 MB", date: "2026-03-20", iconType: "pdf" },
-  ];
-}
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
-export default async function PublicStoragePage() {
-  const initialData = await getPublicStorageData();
+export default async function PublicStoragePage(props: { searchParams: SearchParams }) {
+  const searchParams = await props.searchParams;
+  const folderId = typeof searchParams.folder === "string" ? searchParams.folder : undefined;
+  const kind = typeof searchParams.kind === "string" ? searchParams.kind : undefined;
+
+  const res =
+    kind && ["image", "video", "document"].includes(kind)
+      ? await getPublicQuickListAction(kind, folderId)
+      : await getPublicStorageListAction(folderId);
+  let initialData: StorageItem[] = [];
+  if (res?.success && "data" in res && (res as any).data?.items) {
+    initialData = (res as any).data.items || [];
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white font-sans selection:bg-blue-500/30">
@@ -27,8 +35,46 @@ export default async function PublicStoragePage() {
           hideActions={true}
         />
         
-        <div className="mt-8">
-          <StorageList initialFiles={initialData} readOnly={true} />
+        <div className="flex flex-wrap gap-3 mb-6">
+          {[
+            { key: "image", label: "Images", icon: ImageIcon },
+            { key: "video", label: "Videos", icon: Video },
+            { key: "document", label: "Documents", icon: FileText },
+          ].map((c) => {
+            const href = `/public-feature/public-storage?${folderId ? `folder=${folderId}&` : ""}kind=${c.key}`;
+            const isActive = kind === c.key;
+            const Icon = c.icon;
+            return (
+              <a
+                key={c.key}
+                href={href}
+                className={`px-4 py-3 rounded-2xl border text-sm transition-colors flex items-center gap-2 ${
+                  isActive
+                    ? "bg-blue-600 border-blue-500/50 text-white"
+                    : "bg-white/[0.03] border-white/10 text-neutral-300 hover:bg-white/5"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {c.label}
+              </a>
+            );
+          })}
+          {kind ? (
+            <a
+              href={folderId ? `/public-feature/public-storage?folder=${folderId}` : "/public-feature/public-storage"}
+              className="px-4 py-2 rounded-lg border text-sm bg-white/[0.03] border-white/10 text-neutral-300 hover:bg-white/5"
+            >
+              All
+            </a>
+          ) : null}
+        </div>
+
+        <div>
+          {kind ? (
+            <StorageCardGrid initialFiles={initialData} readOnly={true} />
+          ) : (
+            <StorageList initialFiles={initialData} readOnly={true} />
+          )}
         </div>
       </main>
     </div>

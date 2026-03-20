@@ -21,14 +21,7 @@ export function HomeNavbarClient({ isLoggedIn }: HomeNavbarClientProps) {
   };
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-40 flex items-center justify-between px-6 py-4 border-b border-white/[0.05] bg-black/50 backdrop-blur-xl">
-      {/* Logo */}
-      <Link href="/home" className="flex items-center gap-2.5 group">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg shadow-purple-900/40 ring-1 ring-white/10">
-          <Shield className="w-4 h-4 text-white" />
-        </div>
-        <span className="font-semibold text-sm text-white">Ghifary Web</span>
-      </Link>
+    <nav className="fixed top-0 inset-x-0 z-40 flex items-end justify-end px-6 py-4 border-b border-white/[0.05] bg-black/50 backdrop-blur-xl">
 
       {/* Auth Actions */}
       <div className="flex items-center gap-3">

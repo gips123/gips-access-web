@@ -62,15 +62,15 @@ export function StorageModal({ isOpen, onClose, isLoggedIn }: StorageModalProps)
               {/* Header */}
               <div className="flex items-center justify-between px-6 pt-6 pb-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Pilih Penyimpanan</h2>
+                  <h2 className="text-xl font-semibold text-white">Choose Storage</h2>
                   <p className="text-sm text-neutral-400 mt-0.5">
-                    Pilih jenis akses penyimpanan yang Anda butuhkan.
+                    Select the type of storage access you need.
                   </p>
                 </div>
                 <button
                   onClick={onClose}
                   className="flex items-center justify-center w-8 h-8 rounded-lg text-neutral-500 hover:text-white hover:bg-white/10 transition-colors"
-                  aria-label="Tutup modal"
+                  aria-label="Close modal"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -92,7 +92,7 @@ export function StorageModal({ isOpen, onClose, isLoggedIn }: StorageModalProps)
                       Public Storage
                     </p>
                     <p className="text-xs text-neutral-500 mt-0.5">
-                      Akses berkas publik tanpa login.
+                      Access public files without login.
                     </p>
                   </div>
                   <ArrowRight className="w-4 h-4 text-neutral-600 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
@@ -113,7 +113,7 @@ export function StorageModal({ isOpen, onClose, isLoggedIn }: StorageModalProps)
                         Private Storage
                       </p>
                       <p className="text-xs text-neutral-500 mt-0.5">
-                        Berkas pribadi — Anda sudah login.
+                        Private files — You are logged in.
                       </p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-neutral-600 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
@@ -131,7 +131,7 @@ export function StorageModal({ isOpen, onClose, isLoggedIn }: StorageModalProps)
                         Private Storage
                       </p>
                       <p className="text-xs text-amber-500/80 mt-0.5">
-                        Memerlukan login untuk mengakses.
+                        Requires login to access.
                       </p>
                     </div>
                     <Lock className="w-4 h-4 text-neutral-600 group-hover:text-amber-400 transition-colors" />
@@ -149,12 +149,12 @@ export function StorageModal({ isOpen, onClose, isLoggedIn }: StorageModalProps)
                   className="flex items-center gap-1.5 text-sm text-neutral-500 hover:text-white transition-colors"
                 >
                   <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                  Kembali
+                  Back
                 </button>
                 <button
                   onClick={onClose}
                   className="flex items-center justify-center w-8 h-8 rounded-lg text-neutral-500 hover:text-white hover:bg-white/10 transition-colors"
-                  aria-label="Tutup modal"
+                  aria-label="Close modal"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -168,9 +168,9 @@ export function StorageModal({ isOpen, onClose, isLoggedIn }: StorageModalProps)
                 </div>
 
                 <div className="space-y-1">
-                  <h3 className="text-lg font-semibold text-white">Login Diperlukan</h3>
+                  <h3 className="text-lg font-semibold text-white">Login Required</h3>
                   <p className="text-sm text-neutral-400 max-w-xs">
-                    Private Storage hanya dapat diakses oleh pengguna yang sudah login ke sistem.
+                    Private Storage can only be accessed by users who are logged into the system.
                   </p>
                 </div>
 
@@ -182,13 +182,13 @@ export function StorageModal({ isOpen, onClose, isLoggedIn }: StorageModalProps)
                     className="flex items-center justify-center gap-2 w-full h-11 px-4 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-900/30"
                   >
                     <LogIn className="w-4 h-4" />
-                    Masuk ke Akun
+                    Sign In to Account
                   </Link>
                   <button
                     onClick={() => setShowLoginPrompt(false)}
                     className="flex items-center justify-center w-full h-11 px-4 text-sm font-medium text-neutral-400 hover:text-white bg-white/[0.03] border border-white/[0.07] rounded-xl hover:bg-white/[0.07] transition-all"
                   >
-                    Kembali ke Pilihan
+                    Back to Options
                   </button>
                 </div>
               </div>

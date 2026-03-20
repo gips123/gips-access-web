@@ -15,7 +15,7 @@ export function HomeFeatures({ isLoggedIn }: HomeFeaturesProps) {
   const cards = [
     {
       title: "Storage",
-      description: "Kelola dan simpan berkas dengan aman di cloud lokal.",
+      description: "Manage and store files securely in the local cloud.",
       href: null,
       onClick: () => setStorageModalOpen(true),
       icon: HardDrive,
@@ -24,7 +24,7 @@ export function HomeFeatures({ isLoggedIn }: HomeFeaturesProps) {
     },
     {
       title: "Access",
-      description: "Atur hak akses dan autentikasi ke berbagai sistem.",
+      description: "Manage access rights and authentication to various systems.",
       href: "/(protected)/access",
       onClick: undefined,
       icon: KeyRound,
@@ -33,7 +33,7 @@ export function HomeFeatures({ isLoggedIn }: HomeFeaturesProps) {
     },
     {
       title: "Notes",
-      description: "Catat ide dan dokumentasi penting tim secara real-time.",
+      description: "Note ideas and important team documentation in real-time.",
       href: "/(protected)/notes",
       onClick: undefined,
       icon: StickyNote,
@@ -42,7 +42,7 @@ export function HomeFeatures({ isLoggedIn }: HomeFeaturesProps) {
     },
     {
       title: "Settings",
-      description: "Konfigurasi tingkat lanjut untuk Web Ghifary.",
+      description: "Advanced configuration for Ghifary Web.",
       href: "/(protected)/settings",
       onClick: undefined,
       icon: Settings,

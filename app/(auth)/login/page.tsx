@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
-import { dummyLogin } from "./core/actions";
+import { loginAction } from "./core/actions";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,17 +11,25 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMsg("");
     
-    // Call server action to set dummy cookie
+    // Call server action to hit real Go API
     try {
-      await dummyLogin();
-      // Redirect back to origin page or default to /storage
-      const from = searchParams.get('from') || '/storage';
-      router.push(from);
+      const res = await loginAction({ email, password });
+      
+      if (res?.success) {
+        // Redirect back to origin page or default to /storage
+        const from = searchParams.get('from') || '/storage';
+        router.push(from);
+      } else {
+        setErrorMsg(res?.error || "Sign in failed, please try again.");
+        setIsLoading(false);
+      }
     } catch (error) {
       console.error(error);
       setIsLoading(false);
@@ -47,10 +55,10 @@ export default function LoginPage() {
               <ShieldCheck className="w-8 h-8 text-white drop-shadow-sm" strokeWidth={2} />
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-400">
-              Akses Web Ghifary
+              Ghifary Web Access
             </h1>
             <p className="text-sm text-neutral-400">
-              Masuk untuk melanjutkan ke dasbor utama
+              Sign in to continue to the main dashboard
             </p>
           </div>
 
@@ -60,7 +68,7 @@ export default function LoginPage() {
               {/* Email Input */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-neutral-300 ml-1">
-                  Alamat Email
+                  Email Address
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
@@ -71,7 +79,7 @@ export default function LoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="nama@email.com"
+                    placeholder="name@email.com"
                     className="w-full h-12 pl-12 pr-4 bg-white/[0.03] border border-white/10 rounded-xl text-white placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all"
                   />
                 </div>
@@ -81,10 +89,10 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between ml-1">
                   <label className="text-sm font-medium text-neutral-300">
-                    Kata Sandi
+                    Password
                   </label>
                   <a href="#" className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
-                    Lupa sandi?
+                    Forgot password?
                   </a>
                 </div>
                 <div className="relative group">
@@ -103,6 +111,12 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {errorMsg && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+                {errorMsg}
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="submit"
@@ -113,7 +127,7 @@ export default function LoginPage() {
                 <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin"></span>
               ) : (
                 <>
-                  <span className="relative z-10">Masuk ke Sistem</span>
+                  <span className="relative z-10">Sign In</span>
                   <ArrowRight className="relative z-10 w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
@@ -124,7 +138,7 @@ export default function LoginPage() {
         
         {/* Footer info */}
         <div className="mt-8 text-center text-xs text-neutral-500">
-          Masuk mode demo. Gunakan email dan sandi apa saja.
+          Version 1.0.0
         </div>
       </div>
     </div>

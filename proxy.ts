@@ -18,10 +18,20 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isLoginPage && authToken) {
-    // Already authenticated — redirect to private storage
-    return NextResponse.redirect(new URL('/storage', request.url));
+  if (isLoginPage) {
+    // Jika ada trigger komando hapus cookie (misalnya backend menolak token expired)
+    if (request.nextUrl.searchParams.get('clear') === '1') {
+      const response = NextResponse.next();
+      response.cookies.delete('auth_token');
+      return response;
+    }
+
+    if (authToken) {
+      // Already authenticated — redirect to private storage
+      return NextResponse.redirect(new URL('/storage', request.url));
+    }
   }
+
 
   return NextResponse.next();
 }

@@ -11,23 +11,23 @@ import {
   Trash2,
   Share2
 } from "lucide-react";
-
-export type FileItem = {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  date: string;
-  iconType: string;
-};
+import { StorageItem } from "@/lib/sdk/models";
 
 interface StorageListProps {
-  initialFiles: FileItem[];
+  initialFiles: StorageItem[];
   readOnly?: boolean;
+  onRenameRequest?: (item: StorageItem) => void;
+  onDeleteRequest?: (item: StorageItem) => void;
 }
 
-export function StorageList({ initialFiles, readOnly = false }: StorageListProps) {
-  const [files, setFiles] = useState<FileItem[]>(initialFiles);
+export function StorageList({ 
+  initialFiles, 
+  readOnly = false,
+  onRenameRequest,
+  onDeleteRequest
+}: StorageListProps) {
+  // Use initialFiles directly to sync with Server Actions revalidation
+  const files = initialFiles;
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   const getIcon = (iconType: string) => {
@@ -49,17 +49,17 @@ export function StorageList({ initialFiles, readOnly = false }: StorageListProps
     <div className="w-full bg-white/[0.02] border border-white/[0.05] rounded-2xl shadow-xl overflow-hidden backdrop-blur-md">
       {/* Table Header */}
       <div className="hidden grid-cols-12 gap-4 px-6 py-4 text-xs font-medium tracking-wider text-neutral-500 uppercase border-b border-white/[0.05] bg-white/[0.01] sm:grid">
-        <div className="col-span-6 md:col-span-5">Nama Berkas</div>
-        <div className="hidden md:block col-span-3">Terakhir Diubah</div>
-        <div className="col-span-4 md:col-span-2">Ukuran</div>
-        <div className="col-span-2 text-right">Aksi</div>
+        <div className="col-span-6 md:col-span-5">File Name</div>
+        <div className="hidden md:block col-span-3">Last Modified</div>
+        <div className="col-span-4 md:col-span-2">Size</div>
+        <div className="col-span-2 text-right">Actions</div>
       </div>
 
       {/* List Items */}
       <div className="divide-y divide-white/[0.05]">
         {files.length === 0 ? (
           <div className="px-6 py-12 text-center text-neutral-500">
-            Tidak ada berkas di folder ini.
+            No files in this folder.
           </div>
         ) : (
           files.map((file) => (
@@ -76,17 +76,17 @@ export function StorageList({ initialFiles, readOnly = false }: StorageListProps
                     {file.name}
                   </span>
                   <span className="text-xs text-neutral-500 sm:hidden mt-0.5">
-                    {file.date} &bull; {file.size}
+                    {new Date(file.updated_at).toLocaleDateString("id-ID")} &bull; {file.size || "-"}
                   </span>
                 </div>
               </div>
 
               <div className="hidden md:block col-span-3 text-sm text-neutral-400">
-                {file.date}
+                {new Date(file.updated_at).toLocaleDateString("id-ID")}
               </div>
 
               <div className="hidden sm:block col-span-4 md:col-span-2 text-sm text-neutral-400">
-                {file.size}
+                {file.size || "-"}
               </div>
 
               <div className="col-span-2 flex items-center justify-end">
@@ -105,16 +105,25 @@ export function StorageList({ initialFiles, readOnly = false }: StorageListProps
                   {activeMenuId === file.id && (
                     <div className="absolute right-0 z-20 mt-2 w-48 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl py-1 transform origin-top-right animate-in fade-in zoom-in-95 duration-200">
                       <button className="flex items-center w-full px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-white/10 transition-colors">
-                        <Download className="w-4 h-4 mr-3" /> Unduh
+                        <Download className="w-4 h-4 mr-3" /> Download
                       </button>
                       <button className="flex items-center w-full px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-white/10 transition-colors">
-                        <Share2 className="w-4 h-4 mr-3" /> Bagikan
+                        <Share2 className="w-4 h-4 mr-3" /> Share
                       </button>
                       {!readOnly && (
                         <>
                           <div className="h-px bg-white/10 my-1"></div>
-                          <button className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors">
-                            <Trash2 className="w-4 h-4 mr-3" /> Hapus
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); if(onRenameRequest) onRenameRequest(file); }}
+                            className="flex items-center w-full px-4 py-2 text-sm text-blue-400 hover:bg-blue-500/10 transition-colors"
+                          >
+                            <FileText className="w-4 h-4 mr-3" /> Rename
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); if(onDeleteRequest) onDeleteRequest(file); }}
+                            className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4 mr-3" /> Delete
                           </button>
                         </>
                       )}

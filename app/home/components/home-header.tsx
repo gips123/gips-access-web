@@ -6,19 +6,19 @@ export function HomeHeader() {
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
         </span>
-        <span className="text-neutral-300">Sistem Utama Aktif</span>
+        <span className="text-neutral-300">Main System Online</span>
       </div>
       
       <div className="space-y-6">
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
-          Selamat Datang di
+          Welcome to
           <br />
           <span className="inline-block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 drop-shadow-sm">
-            Web Ghifary
+            Ghifary Web
           </span>
         </h1>
         <p className="max-w-2xl mx-auto text-lg md:text-xl text-neutral-400 font-light leading-relaxed">
-          Pusat kendali terintegrasi untuk mengelola penyimpanan data, hak akses, catatan harian, dan layanan esensial lainnya.
+          An integrated control center to manage data storage, access rights, daily notes, and other essential services.
         </p>
       </div>
     </div>

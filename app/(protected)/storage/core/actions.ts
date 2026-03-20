@@ -49,6 +49,19 @@ export async function createFolderAction(payload: CreateFolderRequest) {
   }
 }
 
+export async function uploadFileAction(formData: FormData) {
+  try {
+    const token = await getToken();
+    const res = await storageSdk.uploadFile(token, formData);
+    if (res.success) {
+      revalidatePath('/storage');
+    }
+    return res;
+  } catch (error: any) {
+    return { success: false, error: error.response?.data?.error || error.message };
+  }
+}
+
 export async function renameItemAction(id: string, payload: RenameFolderRequest) {
   try {
     const token = await getToken();

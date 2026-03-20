@@ -4,7 +4,7 @@ import { useState } from "react";
 import { StorageHeader } from "./storage-header";
 import { StorageList } from "./storage-list";
 import { StorageItem } from "@/lib/sdk/models";
-import { createFolderAction, renameItemAction, deleteItemAction } from "@/app/(protected)/storage/core/actions";
+import { createFolderAction, renameItemAction, deleteItemAction, uploadFileAction } from "@/app/(protected)/storage/core/actions";
 import { X, FolderPlus, Upload, FileText, Check, AlertTriangle } from "lucide-react";
 
 interface StorageClientWrapperProps {
@@ -24,7 +24,7 @@ export function StorageClientWrapper({ initialFiles, parentId }: StorageClientWr
   // Form states
   const [folderName, setFolderName] = useState("");
   const [renameName, setRenameName] = useState("");
-  const [uploadName, setUploadName] = useState("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -83,12 +83,30 @@ export function StorageClientWrapper({ initialFiles, parentId }: StorageClientWr
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate upload (akan gagal jika endpoint belum siap, tapi UI sudah jalan)
+    if (!uploadFile) {
+      setErrorMsg("Pilih file terlebih dahulu");
+      return;
+    }
+
     setIsSubmitting(true);
-    setErrorMsg("Fitur upload sesungguhnya membutuhkan endpoint POST /storage/files. (Sedang dikembangkan)");
-    setTimeout(() => {
-        setIsSubmitting(false);
-    }, 1500);
+    setErrorMsg("");
+
+    const formData = new FormData();
+    formData.append("file", uploadFile);
+    formData.append("is_public", "false");
+    if (parentId) {
+      formData.append("parent_id", parentId);
+    }
+
+    const res = await uploadFileAction(formData);
+
+    setIsSubmitting(false);
+    if (res?.success) {
+      setUploadModalOpen(false);
+      setUploadFile(null);
+    } else {
+      setErrorMsg(res?.error || "Gagal mengupload file ke MinIO");
+    }
   };
 
   return (
@@ -108,7 +126,14 @@ export function StorageClientWrapper({ initialFiles, parentId }: StorageClientWr
                 Back to Dashboard
             </a>
             <div className="space-y-1">
-                <h1 className="text-3xl font-bold tracking-tight text-white">Private Storage</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+                  Private Storage
+                  {parentId && (
+                    <a href="/storage" className="text-sm font-normal text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-3 py-1 rounded-full transition-colors inline-block mt-1">
+                       / Go to Root
+                    </a>
+                  )}
+                </h1>
             </div>
         </div>
         <div className="flex items-center gap-2">
@@ -165,13 +190,20 @@ export function StorageClientWrapper({ initialFiles, parentId }: StorageClientWr
               <button onClick={() => setUploadModalOpen(false)} className="text-neutral-500 hover:text-white"><X className="w-5 h-5"/></button>
             </div>
             <form onSubmit={handleUpload}>
-              <div className="w-full border-2 border-dashed border-white/20 rounded-xl p-8 flex flex-col items-center justify-center text-neutral-400 mb-4 hover:border-blue-500/50 transition-colors cursor-pointer">
+              <div className="w-full relative border-2 border-dashed border-white/20 rounded-xl p-8 flex flex-col items-center justify-center text-neutral-400 mb-4 hover:border-blue-500/50 transition-colors cursor-pointer overflow-hidden bg-white/[0.02]">
+                 <input 
+                    type="file" 
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                    onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                 />
                  <Upload className="w-8 h-8 mb-2 text-neutral-500" />
-                 <span className="text-sm">Click to select file or drag & drop</span>
+                 <span className="text-sm text-center">
+                    {uploadFile ? uploadFile.name : "Click to select file or drag & drop"}
+                 </span>
               </div>
               {errorMsg && <p className="text-amber-400 text-sm mb-4 text-center">{errorMsg}</p>}
-              <button disabled={isSubmitting} className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg py-2 font-medium transition-all">
-                {isSubmitting ? "Uploading..." : "Upload Start"}
+              <button disabled={isSubmitting || !uploadFile} className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg py-2 font-medium transition-all">
+                {isSubmitting ? "Uploading..." : "Upload File"}
               </button>
             </form>
           </div>

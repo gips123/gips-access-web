@@ -8,10 +8,11 @@ import {
   FileSpreadsheet, 
   MoreVertical,
   Download,
-  Trash2,
-  Share2
+  Share2,
+  Trash2
 } from "lucide-react";
 import { StorageItem } from "@/lib/sdk/models";
+import { useRouter } from "next/navigation";
 
 interface StorageListProps {
   initialFiles: StorageItem[];
@@ -26,9 +27,16 @@ export function StorageList({
   onRenameRequest,
   onDeleteRequest
 }: StorageListProps) {
+  const router = useRouter();
   // Use initialFiles directly to sync with Server Actions revalidation
   const files = initialFiles;
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  const handleItemClick = (file: StorageItem) => {
+    if (file.type === "folder") {
+      router.push(`/storage?folder=${file.id}`);
+    }
+  };
 
   const getIcon = (iconType: string) => {
     switch (iconType) {
@@ -46,9 +54,9 @@ export function StorageList({
   };
 
   return (
-    <div className="w-full bg-white/[0.02] border border-white/[0.05] rounded-2xl shadow-xl overflow-hidden backdrop-blur-md">
+    <div className="w-full bg-white/[0.02] border border-white/[0.05] rounded-2xl shadow-xl backdrop-blur-md">
       {/* Table Header */}
-      <div className="hidden grid-cols-12 gap-4 px-6 py-4 text-xs font-medium tracking-wider text-neutral-500 uppercase border-b border-white/[0.05] bg-white/[0.01] sm:grid">
+      <div className="hidden grid-cols-12 gap-4 px-6 py-4 text-xs font-medium tracking-wider text-neutral-500 uppercase border-b border-white/[0.05] bg-white/[0.01] sm:grid rounded-t-2xl">
         <div className="col-span-6 md:col-span-5">File Name</div>
         <div className="hidden md:block col-span-3">Last Modified</div>
         <div className="col-span-4 md:col-span-2">Size</div>
@@ -58,14 +66,15 @@ export function StorageList({
       {/* List Items */}
       <div className="divide-y divide-white/[0.05]">
         {files.length === 0 ? (
-          <div className="px-6 py-12 text-center text-neutral-500">
+          <div className="px-6 py-12 text-center text-neutral-500 rounded-b-2xl">
             No files in this folder.
           </div>
         ) : (
           files.map((file) => (
             <div 
               key={file.id}
-              className="group grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.04] transition-colors cursor-pointer relative"
+              onClick={() => handleItemClick(file)}
+              className="group grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.04] transition-colors cursor-pointer relative last:rounded-b-2xl"
             >
               <div className="flex items-center gap-3 col-span-10 sm:col-span-6 md:col-span-5">
                 <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.05] border border-white/10 group-hover:scale-105 transition-transform shadow-lg shadow-black/20">

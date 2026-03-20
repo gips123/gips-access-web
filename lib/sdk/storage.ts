@@ -44,6 +44,20 @@ export const storageSdk = {
   },
 
   /**
+   * POST /api/v1/storage/files
+   * Mengupload file (harus pakai token). Axios 1.x bisa langsung handle FormData.
+   */
+  uploadFile: async (token: string, formData: FormData) => {
+    const res = await http.post<ApiResponse<StorageItem>>("/storage/files", formData, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data" 
+      },
+    });
+    return res.data;
+  },
+
+  /**
    * PATCH /api/v1/storage/items/:id
    * Mengubah nama item (harus pakai token dan harus pemilik).
    */

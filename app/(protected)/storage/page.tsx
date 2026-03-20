@@ -3,8 +3,13 @@ import { StorageItem } from "@/lib/sdk/models";
 import { redirect } from "next/navigation";
 import { StorageClientWrapper } from "@/components/storage/storage-client-wrapper";
 
-export default async function StoragePage() {
-  const res = await getPrivateStorageListAction();
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+export default async function StoragePage(props: { searchParams: SearchParams }) {
+  const searchParams = await props.searchParams;
+  const folderId = typeof searchParams.folder === 'string' ? searchParams.folder : undefined;
+
+  const res = await getPrivateStorageListAction(folderId);
   
   if (res && res.success === false) {
     const isUnauthorized = res.error?.toLowerCase().includes("token") || res.error?.toLowerCase().includes("unauthorized") || res.error?.toLowerCase().includes("login");
@@ -25,7 +30,7 @@ export default async function StoragePage() {
       </div>
 
       <main className="relative z-10 flex flex-col flex-1 w-full max-w-6xl px-6 py-12 mx-auto">
-        <StorageClientWrapper initialFiles={initialData} />
+        <StorageClientWrapper initialFiles={initialData} parentId={folderId} />
       </main>
     </div>
   );
